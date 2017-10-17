@@ -985,12 +985,7 @@ class cc_retrieve_view {
           let columnFilter = oParams["sSearch_" + i];
 
           if ((oParams.sSearch !== null && oParams.sSearch !== "" || columnFilter !== null && columnFilter !== "" || restrict  && restrict !== "") && value.bSearchable) {
-            /*
-            if (oParams.sSearch !== null && oParams.sSearch !== "") {
-              console.log('SEARCH' , oParams);
-              asFilters.push("contains((" + sFieldName + "), '" + oParams.sSearch + "')");
-            }
-            */
+
             if (columnFilter !== null && columnFilter !== "") {
               if (value.isArray) {
                 //              if(colIsArray){
@@ -998,8 +993,6 @@ class cc_retrieve_view {
               } else {
 
                 asColumnFilters.push(columnFilter);
-
-                //asColumnFilters.push("contains((" + sFieldName + "),'" + columnFilter + "')");
 
               }
             }
@@ -1011,17 +1004,15 @@ class cc_retrieve_view {
         });
 
       if (oSettings.oAjaxData.sSearch !== null && oSettings.oAjaxData.sSearch !== "") {
-        data.$search = oSettings.oAjaxData.sSearch
+          data.$search = "\"" + encodeURI(oSettings.oAjaxData.sSearch) + "\"";
       }
       if (asFilters.length > 0) {
         data.$filter = asFilters.join(" or ");
       }
       if (asColumnFilters.length > 0) {
         if (data.$filter !== undefined) {
-          // console.log('if');
           data.$filter = "(" + data.$filter + ") and (" + asColumnFilters.join(" and ") + ")";
         } else {
-          //  console.log('else');
           data.$filter = asColumnFilters.join(" and ");
         }
       }
