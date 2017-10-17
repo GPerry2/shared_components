@@ -283,24 +283,6 @@ function openView(status, filter, repo, target, formName) {
   myDataTable.render();
   myDataTable.dt.buttons().container().hide();
 
-  $("#admin_search").on("keyup search input paste cut", function () {
-    $("#btn-adminSearch").find('i').removeClass('glyphicon glyphicon-refresh').addClass('glyphicon glyphicon-search');
-    myDataTable.dt.search(this.value).draw();
-  });
-  /*
-    $('#tabExportCSV').click(function () {
-      $(".dt-button.buttons-csv.buttons-html5").click();
-    });
-    $('#tabExportEXCEL').click(function () {
-      $(".dt-button.buttons-excel.buttons-html5").click();
-    });
-    $('#tabExportPDF').click(function () {
-      $(".dt-button.buttons-pdf.buttons-html5").click();
-    });
-    $('#tabExportCOPY').click(function () {
-      $(".dt-button.buttons-copy.buttons-html5").click();
-    });
-  */
   toggleView("view_pane");
 
   return myDataTable;
