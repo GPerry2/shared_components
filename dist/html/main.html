@@ -1,0 +1,82 @@
+<section id="admininterface">
+  <div class="app_nav">
+    <nav class=" navbar navbar-default">
+      <div class="navbar-header">
+        <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <span id="" class="navbar-brand">
+           <img class="sr-only" height=15px" src="img/lock.png" title="You are in a toronto.ca secure site." alt="An icon of a Lock denoting that this is a secure website." />
+          <span id="viewtitle"> Loading...</span>
+        </span>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right" style="overflow:initial">
+          {{#top_menu}}
+          {{#dropdown}}
+          <li class="{{tm-class}}" id="{{tm-id}}">
+            <a tabindex="0" data-toggle="dropdown" data-submenu>
+              <span class="{{tm-icon-class}}" id="{{tm-id}}_title">{{tm-title}}</span>
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+          {{/dropdown}}
+              {{#tm-items}}
+              {{#submenu}}
+              <li class="dropdown-submenu"><a tabindex="0"><span class="{{sm-class}}"></span>{{submenu}}</a>
+                <ul class="dropdown-menu">
+                  {{#menu-item}}
+                  {{#subsubmenu}}
+                  <li class="dropdown-submenu"><a tabindex="0"><span class="{{sm-class}}"></span>{{submenu}}</a>
+                    <ul class="dropdown-menu">
+                      {{#menu-item}}
+                      <li><a class="{{mi-class}}" data-status="{{data-status}}" data-filter="{{data-filter}}" id="{{mi-id}}" onclick="{{mi-click}}" data-id="{{data-id}}" tabindex="\"><span class="{{mi-icon-class}}"></span>{{title}}</a></li>
+                      {{/menu-item}}
+                    </ul>
+                  </li>
+                  {{/subsubmenu}}
+                  {{^subsubmenu}}
+                  <li><a class="{{mi-class}}" data-status="{{data-status}}" data-filter="{{data-filter}}" id="{{mi-id}}" onclick="{{mi-click}}" data-id="{{data-id}}" tabindex="\"><span class="{{mi-icon-class}}"></span>{{title}}</a></li>
+                  {{/subsubmenu}}
+                  {{/menu-item}}
+                </ul>
+              </li>
+              {{/submenu}}
+              {{^submenu}}
+              <li><a class="{{mi-class}}" data-status="{{data-status}}" data-filter="{{data-filter}}" id="{{mi-id}}" onclick="{{mi-click}}" data-id="{{data-id}}" tabindex="\"><span class="{{mi-icon-class}}"></span>{{title}}</a></li>
+              {{/submenu}}
+              {{/tm-items}}
+              {{#dropdown}}
+            </ul>
+          </li>
+          {{/dropdown}}
+          {{^dropdown}}
+          {{#html}}
+         <li>{{{content}}}</li>
+          {{/html}}
+          {{^html}}
+          <li><a class="{{mi-class}}" data-status="{{data-status}}" data-filter="{{data-filter}}" id="{{mi-id}}" onclick="{{mi-click}}" data-id="{{data-id}}" tabindex="\"><span class="{{mi-icon-class}}"></span>{{title}}</a></li>
+          {{/html}}
+          {{/dropdown}}
+          {{/top_menu}}
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <div class="row">
+    <div  id="page-content" class="col-xs-12 content">
+      <div class="alert alert-success hidden" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button> {{{messages.current}}}
+      </div>
+      <div class="alert alert-danger hidden" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button> {{{messages.current}}}
+      </div>
+      <div id="view_pane" class=""></div>
+      <div id="form_pane" class=""></div>
+    </div>
+  </div>
+</section>
+<div id="back-to-top"  class="btn btn-primary btn-lg back-to-top" role="button" title="Click to return on the top page" data-toggle="tooltip" data-placement="left"><span class="glyphicon glyphicon-chevron-up"></span></div>
