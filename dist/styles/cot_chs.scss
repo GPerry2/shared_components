@@ -193,7 +193,10 @@ table.dataTable.display tbody>tr.selected:hover>.sorting_1,table.dataTable.order
 @media screen and (max-width: 640px){div.dataTables_wrapper span.select-info,div.dataTables_wrapper span.select-item{margin-left:0;display:block}}
 #maincontent table.dataTable tbody tr.selected,table.dataTable tbody th.selected,table.dataTable tbody td.selected{color:white;}
 #maincontent table.dataTable tbody tr.selected a,table.dataTable tbody th.selected a,table.dataTable tbody td.selected a{color:#a2d4ed;}
-
+#maincontent table.dataTable input{height:20px;}
+#maincontent table.dataTable .text_filter{height:18px;}
+#maincontent table.dataTable .form-control .input-xs{height:18px;}
+.dt-checkboxes{transform: scale(0.9);}
 .back-to-top {
   cursor: pointer;
   position: fixed;
