@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+//core 3x version
 /**
  * Global Variables
  * @param app {object} coreJS cot_app object
