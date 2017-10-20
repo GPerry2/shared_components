@@ -75,7 +75,7 @@ function init() {
     crossroads.addRoute('{formName}/new/:?query:', newPage);
     crossroads.addRoute('{formName}/{id}/:?query:', viewEditPage);
     oLogin = new cot_login({
-        ccRoot: config.httpHost.app["prod"],
+        ccRoot: config.httpHost.app[httpHost],
         ccPath: config.api.authPath,
         ccEndpoint:config.api.authEndpoint,
         welcomeSelector: "#app-content-right",
