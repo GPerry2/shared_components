@@ -379,7 +379,7 @@ function loadForm(destinationSelector, data, fid, repo, form_id) {
 
     $(destinationSelector).empty();
 
-    [sections, mymodel]= getSubmissionSections(form_id);
+    [sections, mymodel, registerFormEvents]= getSubmissionSections(form_id, data);
 
     let f = new CotForm({
         "id": form_id,
@@ -395,6 +395,7 @@ function loadForm(destinationSelector, data, fid, repo, form_id) {
     });
     f.render({"target": destinationSelector});
     f.setModel(mymodel);
+    registerFormEvents();
     app.forms[form_id] = f;
 
     $('.dropzone').each(function (index) {
