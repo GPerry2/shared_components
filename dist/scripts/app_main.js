@@ -395,7 +395,7 @@ function loadForm(destinationSelector, data, fid, repo, form_id) {
     });
     f.render({"target": destinationSelector});
     f.setModel(mymodel);
-    registerFormEvents();
+    typeof registerFormEvents === "function" ? registerFormEvents() : "";
     app.forms[form_id] = f;
 
     $('.dropzone').each(function (index) {
