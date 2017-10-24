@@ -215,6 +215,7 @@ function frontPage(formName, query) {
         /* List submissions */
         let status = (query && query.status) ? query.status : "";
         let repo = (query && query.repo) ? query.repo : config.default_repo;
+        let filter = [];
         try {
             $.each((query && query.filter) ? query.filter.split("~") : "", function (i, item) {
                 let tmp = item.split(":");
