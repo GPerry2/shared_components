@@ -979,6 +979,432 @@ class cc_retrieve_view {
                     let columnFilter = oParams["sSearch_" + i];
 
                     if ((oParams.sSearch !== null && oParams.sSearch !== "" || columnFilter !== null && columnFilter !== "" || restrict  && restrict !== "") && value.bSearchable) {
+                        /*
+                        if (oParams.sSearch !== null && oParams.sSearch !== "") {
+                          console.log('SEARCH' , oParams);
+                          asFilters.push("contains((" + sFieldName + "), '" + oParams.sSearch + "')");
+                        }
+                        */
+                        if (columnFilter !== null && columnFilter !== "") {
+                            if (value.isArray) {
+                                //              if(colIsArray){
+                                asColumnFilters.push(sFieldName + "/any(d:d eq '" + columnFilter + "')");
+                            } else {
+
+                                asColumnFilters.push(columnFilter);
+
+                                //asColumnFilters.push("contains((" + sFieldName + "),'" + columnFilter + "')");
+
+                            }
+                        }
+
+                        if (restrict  && restrict !== "") {
+                            asRestrictFilters.push(restrict);
+                        }
+                    }
+                });
+
+            if (oSettings.oAjaxData.sSearch !== null && oSettings.oAjaxData.sSearch !== "") {
+                data.$search = oSettings.oAjaxData.sSearch
+            }
+            if (asFilters.length > 0) {
+                data.$filter = asFilters.join(" or ");
+            }
+            if (asColumnFilters.length > 0) {
+                if (data.$filter !== undefined) {
+                    // console.log('if');
+                    data.$filter = "(" + data.$filter + ") and (" + asColumnFilters.join(" and ") + ")";
+                } else {
+                    //  console.log('else');
+                    data.$filter = asColumnFilters.join(" and ");
+                }
+            }
+            if (asRestrictFilters.length > 0) {
+                if (data.$filter !== undefined) {
+                    data.$filter = "(" + data.$filter + ") and (" + asRestrictFilters.join(" and ") + ")";
+                } else {
+                    data.$filter = asRestrictFilters.join(" and ");
+                }
+            }
+            for (let i = 0; i < oParams.iSortingCols; i++) {
+                if (isColumnArray[oParams["iSortCol_" + i]]) {
+                    asOrderBy.push(oParams["mDataProp_" + oParams["iSortCol_" + i]] + "/any(d:d) " + (oParams["sSortDir_" + i] || ""));
+                } else {
+                    asOrderBy.push(oParams["mDataProp_" + oParams["iSortCol_" + i]] + " " + (oParams["sSortDir_" + i] || ""));
+                }
+            }
+            if (asOrderBy.length > 0) {
+                data.$orderby = asOrderBy.join();
+            }
+        }
+        sUrl += '?' +
+            Object.keys(data).map(function (key) {
+                return encodeURIComponent(key) + '=' +
+                    encodeURIComponent(data[key]);
+            }).join('&');
+        $.ajax(jQuery.extend({}, oSettings.oInit.ajax, {
+            "url": sUrl,
+            "jsonp": bJSONP,
+            "dataType": bJSONP ? "jsonp" : "json",
+            "jsonpCallback": data["$callback"],
+            "cache": false,
+            "headers": {
+                //"Authorization": "AuthSession " + getCookie(config.default_repo + '.sid')
+            },
+            "success": function (data) {
+                let oDataSource = {};
+                oDataSource.aaData = data.value;
+                let iCount = data["@odata.count"];
+                if (iCount == null) {
+                    if (oDataSource.aaData.length === oSettings._iDisplayLength) {
+                        oDataSource.iTotalRecords = oSettings._iDisplayStart + oSettings._iDisplayLength + 1;
+                    } else {
+                        oDataSource.iTotalRecords = oSettings._iDisplayStart + oDataSource.aaData.length;
+                    }
+                } else {
+                    oDataSource.iTotalRecords = iCount;
+                }
+                oDataSource.iTotalDisplayRecords = oDataSource.iTotalRecords;
+                fnCallback(oDataSource);
+            }
+        }));
+    } // end fnServerData
+}
+class cc_retrieve_view_bu {
+    /**
+     * @method constructor
+     * @param args {object} parameters to apply to the new cc_retrieve_view
+     */
+    constructor(args) {
+        this.url = args.url;
+        this.target = args.target;
+        this.formName = args.formName;
+        this.addFooter = args.addFooter;
+        this.addFilter = args.addFilter;
+        this.addScroll = args.addScroll;
+        this.columnDefs = args.columnDefs;
+        this.dateFormat = args.dateFormat;
+        this.sortOrder = args.sortOrder;
+        this.defaultSortOrder = args.defaultSortOrder;
+        this.dom_table;
+        this.dt;
+        this.dateFilterLoaded;
+    }
+
+    /**
+     * @method uniqueId
+     * @param length
+     * @returns {string}
+     * @description generates a unique uid of numeric characters with a length passed in in the length parameter
+     * this is used to create unique id for each DataTable on a page.
+     */
+    uniqueId(length) {
+        let id = Math.floor(Math.random() * 26) + Date.now();
+        return id.toString().substring(length);
+    }
+
+    /**
+     * @method getColumns
+     * @returns {string}
+     * @description
+     */
+    getColumns() {
+        let listHTML = "";
+        $.each(this.columnDefs, function () {
+            listHTML += '<th></th>';
+        });
+        return listHTML;
+    }
+
+    /**
+     * @method getColumnSortOrder
+     * @returns {Array}
+     */
+    getColumnSortOrder() {
+        let arrSortOrder = [];
+        $.each(this.columnDefs, function (i, item) {
+            if (item.data != null && item.sortOrder) {
+                arrSortOrder.push(new Array(i, item.sortOrder ? item.sortOrder : this.defaultSortOrder))
+            }
+        });
+        return arrSortOrder
+    }
+
+    getSelected() {
+        let _this = this, ret = [];
+        $.each(this.dt.column(0).checkboxes.selected(), function (i, val) {
+            ret.push(_this.dt.row($('#' + val)).data());
+        });
+        return ret;
+    }
+
+    /**
+     * @method getTable
+     * @returns {*}
+     */
+    getTable() {
+        return this.dom_table;
+    }
+
+    /**
+     * @method render
+     * @returns {*}
+     */
+    render() {
+        let _this = this;
+        let unid = this.uniqueId(4);
+        let cols = this.getColumns();
+        let listHTML = '<table class="" style="width:100%;" id="' + unid + '" >';
+        /*
+        if ($.fn.dataTableExt.afnFiltering.length === 0) {
+          $.fn.dataTableExt.afnFiltering.push(
+            function (oSettings, aData) {
+              let test = true;
+              //loop through all columns to see what type of filter to apply
+              $.each(_this.columnDefs, function (i, col) {
+                console.log('col:',col);
+              //currently only date range is implemented.
+                if (col.filter && col.type == "date") {
+                  console.log('in date')
+                  if (moment.isMoment(col.minDateFilter) && moment.isMoment(col.maxDateFilter) && test == true) {
+                    test = moment(col.link ? $(aData[i]).text() : aData[i]).isBetween(col.minDateFilter, col.maxDateFilter);
+                  }
+                }
+              });
+              return test;
+            }
+          );
+        }
+        */
+        listHTML += '<thead><tr>' + cols + '</tr></thead>';
+        listHTML += this.addFooter ? '<tfoot><tr>' + cols + '</tr></tfoot>' : '';
+        listHTML += '</table>';
+        let dateFormat = this.dateFormat;
+        this.target.empty().html(listHTML);
+        this.dt = $("#" + unid).DataTable({
+            'formName': _this.formName,
+            'scrollX': _this.addScroll, // USED FOR HORIZONTAL SCROLL BAR
+            'bAutoWidth': _this.addScroll,
+            'order': this.getColumnSortOrder(),
+            'bProcessing': true,
+            'bServerSide': true,
+            'dom': "<'row'<'col-sm-8 pull-left'i><'col-sm-4 pull-right'l>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'hidden'B><'col-sm-12 pull-right'p>>",
+            'buttons': ['pdfHtml5', 'csvHtml5', 'copyHtml5', 'excelHtml5'],
+            //'deferRender': false,
+            'sAjaxSource': this.url,
+            'fnServerData': this.fnServerOData,
+            //'iODataVersion': 4,
+            //'bUseODataViaJSONP': false,
+            'createdRow': function (row, data) {
+                let doc_id = data.id ? data.id : data['@odata.id'].substring((data['@odata.id'].indexOf("('") + 2), (data['@odata.id'].indexOf("')")));
+                $(row).attr('id', doc_id);
+                $(row).attr('data-id', doc_id);
+                $(row).attr('data-formName', _this.formName);
+            },
+            "columnDefs": this.columnDefs,
+            "select": true,
+            'initComplete': function () {
+                //Add filtering Table if requested
+                this.api().columns().every(function () {
+                    let column = this;
+                    if (_this.addFilter) {
+                        //Add filtering to column if requested
+                        if (_this.columnDefs[this.index()].filter) {
+                            if (_this.columnDefs[this.index()].type === 'date') {
+                                /*
+                                 Add date rang picker here for advanced filtering
+                                 */
+                                let dr = $('<input aria-label="Filter for column:' + _this.columnDefs[this.index()].title + '" class="form-control input-xs" id="dr_filter_' + column.data + '" value=""/>')
+                                    .appendTo($(column.footer()).empty().html("<span class='sr-only'>" + _this.columnDefs[this.index()].title + "</span>"))
+                                    .on('change', function () {
+                                        let val = $(this).val();
+                                        column
+                                            .search(val)
+                                            .draw();
+                                    });
+                                dr.daterangepicker({
+                                    autoUpdateInput: false,
+                                    locale: {
+                                        "format": "YYYY-MM-DD",
+                                        "separator": " to ",
+                                        "applyLabel": "Apply",
+                                        "cancelLabel": "Clear"
+                                    }
+                                });
+                                dr.on('apply.daterangepicker', function (ev, picker) {
+                                    _this.columnDefs[column.index()].minDateFilter = picker.startDate;
+                                    _this.columnDefs[column.index()].maxDateFilter = picker.endDate;
+
+
+                                    $(this).val(picker.startDate.format(config.dateFormat) + ' - ' + picker.endDate.format(config.dateFormat));
+                                    // console.log('picker.startDate: ',picker.startDate,'picker.endDate: ',picker.endDate ,$(this).val());
+                                    console.log(column.index(), column, _this.columnDefs);
+                                    column.search(
+                                        _this.columnDefs[column.index()].data + ' ge ' + picker.startDate.format() + " and " +
+                                        _this.columnDefs[column.index()].data + ' le ' + picker.endDate.format()
+                                    ).draw();
+                                });
+                                dr.on('cancel.daterangepicker', function (ev, picker) {
+                                    $(this).val('');
+                                    _this.columnDefs[column.index()].minDateFilter = '';
+                                    _this.columnDefs[column.index()].maxDateFilter = '';
+                                    column
+                                        .search('')
+                                        .draw();
+                                });
+                            }
+                            else if (_this.columnDefs[this.index()].type === 'text') {
+                                let text_input = $("<input type=\"text\" size=\""+_this.columnDefs[this.index()].size +"\" class=\"dt_input_filter text_filter\"/>")
+                                    .appendTo($(column.footer()).empty().html("<span class='sr-only'>" + _this.columnDefs[this.index()].title + "</span>"))
+                                    .on('keyup', function () {
+                                        let val = $(this).val();
+                                        if(val.length>2){}
+                                        column
+                                            .search("contains(tolower("+ _this.columnDefs[column.index()].data +"), '"+ val.toLowerCase() +"')")
+                                            .draw();
+
+                                    });
+                            }
+                            else {
+                                //add in dropdown and populate values
+                                let select = $("<select style=\"max-width: 90%\" aria-label=\"Filter for column:" + _this.columnDefs[this.index()].title + "\"><option value=\"\"></option></select>")
+                                    .appendTo($(column.footer()).empty().html("<span class='sr-only'>" + _this.columnDefs[this.index()].title + "</span>"))
+                                    .on('change', function () {
+                                        let val = $(this).val();
+                                        column
+                                            .search("contains(("+ _this.columnDefs[column.index()].data +"), '"+ val +"')")
+                                            .draw();
+                                    });
+                                let options = new Array();
+
+                                if (_this.columnDefs[this.index()].filterChoices) {
+                                    $.each(_this.columnDefs[this.index()].filterChoices, function (i, val) {
+                                        options.push('<option value="' + val + '">' + val + '</option>')
+                                    });
+                                }
+                                else {
+                                    column.data().each(function (d) {
+                                        if ($.isArray(d)) {
+                                            jQuery.each(d, function (index, item) {
+                                                options.push('<option value="' + item + '">' + item + '</option>');
+                                            })
+                                        } else {
+                                            options.push('<option value="' + d + '">' + d + '</option>')
+                                        }
+                                    });
+                                }
+
+
+                                $.each(jQuery.uniqueSort(options), function (index, item) {
+                                    select.append(item);
+                                });
+                            }
+                        }
+                        else {
+                            $(column.footer()).empty().html("<span class='sr-only'>" + _this.columnDefs[this.index()].title + "</span>")
+                        }
+                        column.draw();
+                    }
+                });
+
+                // $("#maincontent .dataTable tbody tr").on('click', function(){
+                //    hasher.setHash($(this).attr('data-formName') + '/' + $(this).attr('data-id') + '?ts=' + new Date().getTime() );
+                // });
+
+                let tbody = $('#' + unid + ' tbody');
+                let dt = $('#' + unid).DataTable();
+                tbody.on('dblclick', 'tr', function () {
+                    $(this).addClass('selected');
+                    hasher.setHash($(this).attr('data-formName') + '/' + $(this).attr('data-id') + '?ts=' + new Date().getTime());
+                });
+
+                tbody.on('click', 'tr', function () {
+
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                    }
+                    else {
+                        dt.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                    }
+                });
+
+                $('.input-mini.form-control').each(function (i) {
+                    let cb = $(this);
+                    cb.attr("id", cb.attr("name") + "_" + i)
+                    cb.before($("<label />")
+                        .attr("for", cb.attr("id"))
+                        .text("Date Range Picker Input")
+                        .addClass("sr-only"))
+                });
+            },
+            "bStateSave": true,
+            "fnStateSave": function (oSettings, oData) {
+                localStorage.setItem('DataTables_' + window.location.pathname, JSON.stringify(oData));
+            },
+            "fnStateLoad": function (oSettings) {
+                var data = localStorage.getItem('DataTables_' + window.location.pathname);
+                return JSON.parse(data);
+            }
+        });
+        this.dom_table = $("#" + unid);
+        return this.dt;
+    }
+
+    /**
+     * @method fnServerOData
+     * @param sUrl
+     * @param aoData
+     * @param fnCallback
+     * @param oSettings
+     */
+    fnServerOData(sUrl, aoData, fnCallback, oSettings) {
+        let oParams = {};
+        let asOrderBy = [];
+        $.each(aoData, function (i, value) {
+            oParams[value.name] = value.value;
+        });
+        let data = {"$format": "application/json;odata.metadata=none", "$count": true};
+        let bJSONP = oSettings.oInit.bUseODataViaJSONP;
+
+        if (bJSONP) {
+            data.$callback = "odatatable_" + (oSettings.oFeatures.bServerSide ? oParams.sEcho : ("load_" + Math.floor((Math.random() * 1000) + 1)));
+        }
+        $.each(oSettings.aoColumns, function (i, value) {
+
+            let sFieldName = (value.sName !== null && value.sName !== "") ? value.sName : ((typeof value.mData === 'string') ? value.mData : null);
+            //if (sFieldName === null || !isNaN(Number(sFieldName))) {sFieldName = value.sTitle;}
+            if (sFieldName === null || !isNaN(Number(sFieldName))) {
+                return;
+            }
+            if (data.$select == null) {
+                data.$select = sFieldName;
+            } else {
+                data.$select += "," + sFieldName;
+            }
+        });
+
+        if (oSettings.oFeatures.bServerSide) {
+            data.$skip = oSettings._iDisplayStart;
+            if (oSettings._iDisplayLength > -1) {
+                data.$top = oSettings._iDisplayLength;
+            }
+            let asFilters = [];
+            let asColumnFilters = []; //used for jquery.dataTables.columnFilter.js
+            let asRestrictFilters = [];
+            let isColumnArray = [];
+
+            $.each(oSettings.aoColumns,
+                function (i, value) {
+
+                    let colIsArray = value.isArray ? value.isArray : false;
+                    let sFieldName = value.sName || value.mData;
+                    isColumnArray.push(colIsArray);
+                    //added as a way to fake a Domino style RestrictToCategory. In the column definition, add a restrict property with the value you want to filter
+                    let restrict = value.restrict;
+                    let columnFilter = oParams["sSearch_" + i];
+
+                    if ((oParams.sSearch !== null && oParams.sSearch !== "" || columnFilter !== null && columnFilter !== "" || restrict  && restrict !== "") && value.bSearchable) {
 
                         if (columnFilter !== null && columnFilter !== "") {
                             if (value.isArray) {
