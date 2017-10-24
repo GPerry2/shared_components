@@ -215,15 +215,14 @@ function frontPage(formName, query) {
         /* List submissions */
         let status = (query && query.status) ? query.status : "";
         let repo = (query && query.repo) ? query.repo : config.default_repo;
-        let filter = [];
         try {
-            $.each((query && query.filter) ? JSON.parse(query.filter).items : "", function (i, item) {
-                filter[item.field] = item.value;
+            $.each((query && query.filter) ? query.filter.split("~") : "", function (i, item) {
+                let tmp = item.split(":");
+                filter[tmp[0] ]= tmp[1];
             });
         } catch (e) {
             console.warn("issue parsing filter");
         }
-
         let target = "view_pane"
         $('ul.dropdown-menu > li').removeClass('active');
         $('.forForm').hide();
