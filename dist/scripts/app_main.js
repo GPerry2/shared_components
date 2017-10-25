@@ -1609,7 +1609,7 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable) {
         //add the thumbnail to the dropzone for all files already on the server
         thisDZ.emit("thumbnail", row, getDefaultThumbnail(row.type));
 
-        thisDZ.createThumbnailFromUrl(row, getURL);
+        //thisDZ.createThumbnailFromUrl(row, getURL);
         //set the uploaded file to completed and set the max files for this dropzone.
         thisDZ.emit("complete", row);
         thisDZ.options.maxFiles = thisDZ.options.maxFiles - 1;
@@ -1635,14 +1635,14 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable) {
  */
 function getDefaultThumbnail(stringType) {
     let thumb = "";
-    let img_root = "img";
+    let img_root = "img/";
     let type = stringType.indexOf("/") > -1 ? stringType.split("/")[1] : stringType
     switch (type) {
         case "jpeg":
         case "mpeg":
         case "png":
         case "image":
-            thumb = img_root + "/imageicon.png";
+            thumb = img_root + "imageicon.png";
             break;
         case "mp3":
         case "mp4":
