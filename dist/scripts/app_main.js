@@ -441,14 +441,14 @@ function loadForm(destinationSelector, data, fid, repo, form_id) {
         f.setModel(mymodel);
         $('.dropzone').each(function () {
 
-            showUploads(dropzones[$(this).attr("id")], $(this).attr("id"), data, repo, true, true);
-        })
+            showUploads(dropzones[$(this).attr("id")], $(this).attr("id"), data, repo, true, true, true);
+        });
 
         $("#modifiedBy").val(modifiedUsername);
         if (!$("#modifiedEmail").val()) {
             $("#modifiedBy").val(modifiedUsername);
             $("#modifiedEmail").val('{"' + modifiedName + '":"' + modifiedEmail + '"}');
-        }
+        } 
         else if ($("#modifiedEmail").val().indexOf(modifiedEmail) == -1) {
             if ($("#modifiedEmail").val()) {
                 let emailObj = JSON.parse($("#modifiedEmail").val());
@@ -1547,8 +1547,9 @@ function processUploads(DZ, repo, sync) {
  * @param repo {string} - the event repo name that will be used to use in the delete url.
  * @param allowDelete {boolean} - display the delete button?
  * @param showTable {boolean} - display the uploaded file table.
+ * @param allowPublish {boolean} - display the delete button
  */
-function showUploads(DZ, id, data, repo, allowDelete, showTable) {
+function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
 
     /*
     let thisDZ = DZ;
@@ -1587,10 +1588,11 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable) {
         let getURL = config.httpHost.app[httpHost] + config.api.upload + repo + '/' + row.bin_id + '?sid=' + getCookie(config.default_repo + '.sid');
         let getLink = `<button onclick="event.preventDefault();window.open('` + getURL + `')"><span title="Download/Open Attachment" class="glyphicon glyphicon-download"></span></button>`;
         let deleteLink = '<button class="removeUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Delete Attachment" class="glyphicon glyphicon-trash"></span></button>';
-        let deleteLink = '<button class="publishUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Publish Attachment" class="glyphicon glyphicon-cloud-upload"></span></button>';
+        let publishLink = '<button class="publishUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Publish Attachment" class="glyphicon glyphicon-cloud-upload"></span></button>';
         let buttons = getLink;
         let caption = row.name;
         buttons += allowDelete ? deleteLink : '';
+        buttons += allowPublish ? publishLink : '';
         _uploads += '<tr id="' + row.bin_id + '"><td>' + row.name + '</td><td>' + row.size + '</td><td>' + buttons + '</td></tr>'
 
         //make the thumbnails clickable to view file
