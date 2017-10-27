@@ -1585,8 +1585,8 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable) {
     //thisDZ.emit("addedFile", data[id]);
     $.each(data[id], function (i, row) {
         let getURL = config.httpHost.app[httpHost] + config.api.upload + repo + '/' + row.bin_id + '?sid=' + getCookie(config.default_repo + '.sid');
-        let getLink = `<button onclick="event.preventDefault();window.open('` + getURL + `')"><span class="glyphicon glyphicon-download"></span></button>`;
-        let deleteLink = '<button class="removeUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span class="glyphicon glyphicon-trash"></span></button>';
+        let getLink = `<button onclick="event.preventDefault();window.open('` + getURL + `')"><span title="Download/Open Attachment" class="glyphicon glyphicon-download"></span></button>`;
+        let deleteLink = '<button class="removeUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Delete Attachment" class="glyphicon glyphicon-trash"></span></button>';
         let buttons = getLink;
         let caption = row.name;
         buttons += allowDelete ? deleteLink : '';
