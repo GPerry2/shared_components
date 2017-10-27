@@ -1498,17 +1498,17 @@ class cc_retrieve_view_bu {
 function updateAttachmentStatus(DZ, bin_id, repo, status) {
     let deleteURL = config.httpHost.app[httpHost] + config.api.upload_post + 'binUtils/' + config.default_repo + '/' + bin_id + '/' + status + '?sid=' + getCookie(config.default_repo + '.sid');
     $.get(deleteURL, function () {
-        if (status == 'delete') {
+        if (status === 'delete') {
             $('#' + bin_id).remove();
             DZ.existingUploads = $.grep(DZ.existingUploads, function (e) {
                 return e.bin_id != bin_id
-            })
+            });
 
             let form_id = DZ.options.form_id;
-            processForm('updateAttachments', form_id, repo)
+            processForm('updateAttachments', form_id, repo);
         }
     }).fail(function () {
-        console.log('failed');
+        bootbox.alert("Update Attachment Status Filed")
     });
 }
 
@@ -1587,6 +1587,7 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable) {
         let getURL = config.httpHost.app[httpHost] + config.api.upload + repo + '/' + row.bin_id + '?sid=' + getCookie(config.default_repo + '.sid');
         let getLink = `<button onclick="event.preventDefault();window.open('` + getURL + `')"><span title="Download/Open Attachment" class="glyphicon glyphicon-download"></span></button>`;
         let deleteLink = '<button class="removeUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Delete Attachment" class="glyphicon glyphicon-trash"></span></button>';
+        let deleteLink = '<button class="publishUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Publish Attachment" class="glyphicon glyphicon-cloud-upload"></span></button>';
         let buttons = getLink;
         let caption = row.name;
         buttons += allowDelete ? deleteLink : '';
@@ -1625,6 +1626,10 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable) {
     $(".removeUpload").on('click', function () {
         event.preventDefault();
         updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'delete', $(this).attr('data-id'));
+    });
+    $(".publishUpload").on('click', function () {
+        event.preventDefault();
+        updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'publish', $(this).attr('data-id'));
     });
 }
 
