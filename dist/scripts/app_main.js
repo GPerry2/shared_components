@@ -1214,12 +1214,12 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
     $("#maincontent").off("click", ".publishUpload").on("click", ".publishUpload",function () {
         event.preventDefault();
         let update = updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'publish', true);
-        //  if(update){bootbox.alert("Upload successfully completed");}else{bootbox.alert("Upload Status update failed.");}
+          if(update){}else{bootbox.alert("Upload Status update failed.");}
     });
     $("#maincontent").off("click", ".keepUpload").on("click", ".keepUpload",function () {
         event.preventDefault();
         let update = updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'keep', true);
-        // if(update){bootbox.alert("Upload successfully completed");}else{bootbox.alert("Upload Status update failed.");}
+         if(update){}else{bootbox.alert("Upload Status update failed.");}
     });
 }
 
