@@ -1161,16 +1161,17 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
         updateAttachmentStatus(thisDZ, file.bin_id, repo, 'delete');
     });
 
-    $("#maincontent").off("click", ".removeUpload").on("click", ".removeUpload",function () {
+    $("#maincontent").off("click", ".removeUpload").on("click", ".removeUpload",function (e) {
+        e.preventDefault();
         bootbox.confirm({
             size: "small",
             message: "Are you sure you want to DELETE Selected?",
             callback: function (result) {
                 if (result === true) {
-                    updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'delete', $(this).attr('data-id'));
+                    updateAttachmentStatus(thisDZ, $(e.currentTarget).attr('data-bin'), repo, 'delete', $(e.currentTarget).attr('data-id'));
                 }
             }
-        });
+        }); 
     });
 
     $("#maincontent").off("click", ".publishUpload").on("click", ".publishUpload",function () {
