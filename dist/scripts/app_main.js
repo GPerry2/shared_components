@@ -81,6 +81,7 @@ function init() {
         onLogin: initFrontPage,
         appName: config.default_repo
     });
+    auth();
 }
 
 /**
@@ -1095,7 +1096,9 @@ function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
                 return true;
 
             }
+            $("#maincontent :input").attr("disabled", false);
         }).fail(function () {
+            $("#maincontent :input").attr("disabled", false);
             console.warn("Update Attachment Status Failed");
             return false;
         });
@@ -1120,6 +1123,7 @@ function processUploads(DZ, repo, sync) {
             json.name = row.name;
             json.type = row.type;
             json.size = row.size;
+            json.status = "keep";
             json.bin_id = json.BIN_ID[0];
             delete json.BIN_ID;
             uploadFiles.push(json);
