@@ -583,24 +583,37 @@ function deleteReport(fid, collectionName, after) {
  * @param fid {string} - guid of the entity
  */
 function processForm(action, repo, form_id, fid) {
-    let msg;
+    let msg,f_data;
     //get the form data
-    let f_data = app.forms[form_id]._model.toJSON();
-    //process any drop zones and add the uploaded file data to the payload.
-    $('.dropzone').each(function (index) {
-        f_data[$(this).attr("id")] = processUploads(dropzones[$(this).attr("id")], repo, true);
-    });
-
-    msg = {
-        'done': 'save.done',
-        'fail': 'save.fail'
-    };
-    if (fid) {
+    if(action==="updateAttachments"){
+        f_data = {};
+        msg = {
+            'done': 'save.done',
+            'fail': 'save.fail'
+        };
+        $('.dropzone').each(function (index) {
+            f_data[$(this).attr("id")] = processUploads(dropzones[$(this).attr("id")], repo, true);
+        });
         updateReport(fid, action, JSON.stringify(f_data), msg, repo, form_id);
-    }
-    // Create new
-    else {
-        saveReport(action, JSON.stringify(f_data), msg, repo, form_id);
+    }else {
+        f_data = app.forms[form_id]._model.toJSON();
+        //process any drop zones and add the uploaded file data to the payload.
+        $('.dropzone').each(function (index) {
+            f_data[$(this).attr("id")] = processUploads(dropzones[$(this).attr("id")], repo, true);
+        });
+
+        msg = {
+            'done': 'save.done',
+            'fail': 'save.fail'
+        };
+
+        if (fid) {
+            updateReport(fid, action, JSON.stringify(f_data), msg, repo, form_id);
+        }
+        // Create new
+        else {
+            saveReport(action, JSON.stringify(f_data), msg, repo, form_id);
+        }
     }
 }
 
@@ -1051,24 +1064,33 @@ class cc_retrieve_view {
  */
 function updateAttachmentStatus(DZ, bin_id, repo, status) {
     if(auth()) {
+        $("#maincontent :input").attr("disabled", true);
         let deleteURL = config.httpHost.app[httpHost] + config.api.upload_post + 'binUtils/' + config.default_repo + '/' + bin_id + '/' + status + '?sid=' + getCookie(config.default_repo + '.sid');
         $.get(deleteURL, function () {
+            let form_id = DZ.options.form_id;
             if (status === 'delete') {
                 $('#' + bin_id).remove();
                 DZ.existingUploads = $.grep(DZ.existingUploads, function (e) {
                     return e.bin_id != bin_id
                 });
-                let form_id = DZ.options.form_id;
+
                 processForm('updateAttachments', form_id, repo, hasher.getHashAsArray()[1]);
-            } else {
+                return true;
+            }
+            else {
                 let upload = $.grep(DZ.existingUploads, function (e) {
                     return e.bin_id == bin_id;
                 });
                 if (upload && upload.length == 1)
                     upload[0].status = status;
+                processForm('updateAttachments', form_id, repo, hasher.getHashAsArray()[1]);
+                // bootbox.alert("Upload status successfully changed. Save this document to reflect the changes.");
+                return true;
+
             }
         }).fail(function () {
-            bootbox.alert("Update Attachment Status Filed")
+            console.warn("Update Attachment Status Failed");
+            return false;
         });
     }
 }
@@ -1171,16 +1193,18 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
                     updateAttachmentStatus(thisDZ, $(e.currentTarget).attr('data-bin'), repo, 'delete', $(e.currentTarget).attr('data-id'));
                 }
             }
-        }); 
+        });
     });
 
     $("#maincontent").off("click", ".publishUpload").on("click", ".publishUpload",function () {
         event.preventDefault();
-        updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'publish', $(this).attr('data-id'));
+        let update = updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'publish', $(this).attr('data-id'));
+        //  if(update){bootbox.alert("Upload successfully completed");}else{bootbox.alert("Upload Status update failed.");}
     });
     $("#maincontent").off("click", ".keepUpload").on("click", ".keepUpload",function () {
         event.preventDefault();
-        updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'keep', $(this).attr('data-id'));
+        let update = updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'keep', $(this).attr('data-id'));
+        // if(update){bootbox.alert("Upload successfully completed");}else{bootbox.alert("Upload Status update failed.");}
     });
 }
 
