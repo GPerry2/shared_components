@@ -511,7 +511,9 @@ function saveReport(action, payload, msg, repo, form_id) {
  * called from processForm method
  */
 function updateReport(fid, action, payload, msg, repo, form_id) {
+
     if(auth()) {
+
         $(".btn").prop('disabled', true);
         $.ajax({
             "url": config.httpHost.app[httpHost] + config.api.get + repo + '/' + form_id + "('" + fid + "')" + '?sid=' + getCookie(repo + '.sid'),
@@ -540,6 +542,7 @@ function updateReport(fid, action, payload, msg, repo, form_id) {
             $(".btn").removeAttr('disabled').removeClass('disabled');
         });
     }
+
 }
 
 /**
@@ -583,9 +586,14 @@ function deleteReport(fid, collectionName, after) {
  * @param fid {string} - guid of the entity
  */
 function processForm(action, repo, form_id, fid) {
-    let msg,f_data;
+
+    let msg = {
+        'done': 'save.done',
+        'fail': 'save.fail'
+    },f_data;
     //get the form data
     if(action==="updateAttachments"){
+
         f_data = {};
         msg = {
             'done': 'save.done',
@@ -602,10 +610,6 @@ function processForm(action, repo, form_id, fid) {
             f_data[$(this).attr("id")] = processUploads(dropzones[$(this).attr("id")], repo, true);
         });
 
-        msg = {
-            'done': 'save.done',
-            'fail': 'save.fail'
-        };
 
         if (fid) {
             updateReport(fid, action, JSON.stringify(f_data), msg, repo, form_id);
@@ -1062,7 +1066,8 @@ class cc_retrieve_view {
  * @param repo {string} - the event repo name that will be used to use in the delete url.
  * @param status {string} - Status to set the uploaded file to (delete or keep)
  */
-function updateAttachmentStatus(DZ, bin_id, repo, status) {
+function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
+
     if(auth()) {
         $("#maincontent :input").attr("disabled", true);
         let deleteURL = config.httpHost.app[httpHost] + config.api.upload_post + 'binUtils/' + config.default_repo + '/' + bin_id + '/' + status + '?sid=' + getCookie(config.default_repo + '.sid');
@@ -1083,7 +1088,9 @@ function updateAttachmentStatus(DZ, bin_id, repo, status) {
                 });
                 if (upload && upload.length == 1)
                     upload[0].status = status;
-                processForm('updateAttachments', form_id, repo, hasher.getHashAsArray()[1]);
+                if(process & process===true){
+                    processForm('updateAttachments', form_id, repo, hasher.getHashAsArray()[1]);
+                }
                 // bootbox.alert("Upload status successfully changed. Save this document to reflect the changes.");
                 return true;
 
@@ -1116,7 +1123,7 @@ function processUploads(DZ, repo, sync) {
             json.bin_id = json.BIN_ID[0];
             delete json.BIN_ID;
             uploadFiles.push(json);
-            syncFiles ? updateAttachmentStatus(DZ, json.bin_id, repo, 'keep') : '';
+            syncFiles ? updateAttachmentStatus(DZ, json.bin_id, repo, 'keep', false) : '';
         });
     }
     return uploadFiles;
@@ -1180,9 +1187,13 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
     showTable ? $('#' + id + '_display').html(_uploads) : "";
 
     thisDZ.on("removedfile", function (file) {
-        updateAttachmentStatus(thisDZ, file.bin_id, repo, 'delete');
+        updateAttachmentStatus(thisDZ, file.bin_id, repo, 'delete', false);
     });
-
+    /*
+    thisDZ.on("addedfile", function(file){
+      console.log('addedFile',DZ.getFilesWithStatus(Dropzone.SUCCESS));
+    });
+    */
     $("#maincontent").off("click", ".removeUpload").on("click", ".removeUpload",function (e) {
         e.preventDefault();
         bootbox.confirm({
@@ -1190,7 +1201,7 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
             message: "Are you sure you want to DELETE Selected?",
             callback: function (result) {
                 if (result === true) {
-                    updateAttachmentStatus(thisDZ, $(e.currentTarget).attr('data-bin'), repo, 'delete', $(e.currentTarget).attr('data-id'));
+                    updateAttachmentStatus(thisDZ, $(e.currentTarget).attr('data-bin'), repo, 'delete', true);
                 }
             }
         });
@@ -1198,12 +1209,12 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
 
     $("#maincontent").off("click", ".publishUpload").on("click", ".publishUpload",function () {
         event.preventDefault();
-        let update = updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'publish', $(this).attr('data-id'));
+        let update = updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'publish', true);
         //  if(update){bootbox.alert("Upload successfully completed");}else{bootbox.alert("Upload Status update failed.");}
     });
     $("#maincontent").off("click", ".keepUpload").on("click", ".keepUpload",function () {
         event.preventDefault();
-        let update = updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'keep', $(this).attr('data-id'));
+        let update = updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'keep', true);
         // if(update){bootbox.alert("Upload successfully completed");}else{bootbox.alert("Upload Status update failed.");}
     });
 }
