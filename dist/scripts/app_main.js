@@ -663,6 +663,7 @@ function setHashSilently(hash) {
     hasher.setHash(hash); //set hash without dispatching changed signal
     hasher.changed.active = true; //re-enable signal
 }
+
 class cc_retrieve_view {
     /**
      * @method constructor
@@ -1071,8 +1072,8 @@ function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
 
     if(auth()) {
         $("#maincontent :input").attr("disabled", true);
-        let deleteURL = config.httpHost.app[httpHost] + config.api.upload_post + 'binUtils/' + config.default_repo + '/' + bin_id + '/' + status + '?sid=' + getCookie(config.default_repo + '.sid');
-        $.get(deleteURL, function () {
+        let updateURL = config.httpHost.app[httpHost] + config.api.upload_post + 'binUtils/' + config.default_repo + '/' + bin_id + '/' + status + '?sid=' + getCookie(config.default_repo + '.sid');
+        $.get(updateURL, function (data) {
             let form_id = DZ.options.form_id;
             if (status === 'delete') {
                 $('#' + bin_id).remove();
@@ -1087,8 +1088,11 @@ function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
                 let upload = $.grep(DZ.existingUploads, function (e) {
                     return e.bin_id == bin_id;
                 });
-                if (upload && upload.length == 1)
+                if (upload && upload.length == 1) {
                     upload[0].status = status;
+                    if(status==='publish'){upload[0].published = data;}
+                }
+
                 if(process & process===true){
                     processForm('updateAttachments', form_id, repo, hasher.getHashAsArray()[1]);
                 }
@@ -1214,7 +1218,6 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
     $("#maincontent").off("click", ".publishUpload").on("click", ".publishUpload",function () {
         event.preventDefault();
         let update = updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'publish', true);
-          if(update){}else{bootbox.alert("Upload Status update failed.");}
     });
     $("#maincontent").off("click", ".keepUpload").on("click", ".keepUpload",function () {
         event.preventDefault();
@@ -1230,7 +1233,7 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
  */
 function getDefaultThumbnail(stringType) {
     let thumb = "";
-    let img_root = "img/";
+    let img_root = src_path+ "/img/";
     let type = stringType.indexOf("/") > -1 ? stringType.split("/")[1] : stringType
     switch (type) {
         case "jpeg":
