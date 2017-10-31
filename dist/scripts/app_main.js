@@ -996,7 +996,7 @@ class cc_retrieve_view {
                 });
 
             if (oSettings.oAjaxData.sSearch !== null && oSettings.oAjaxData.sSearch !== "") {
-                data.$search = oSettings.oAjaxData.sSearch
+                data.$search = '"'+ oSettings.oAjaxData.sSearch +'"'
             }
             if (asFilters.length > 0) {
                 data.$filter = asFilters.join(" or ");
