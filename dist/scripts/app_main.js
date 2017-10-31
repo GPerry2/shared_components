@@ -1253,8 +1253,8 @@ function getDefaultThumbnail(stringType) {
         case "ppt":
             thumb = img_root + "/ppt.png";
             break;
-        case "xsl":
-        case "xslx":
+        case "xls":
+        case "xlsx":
         case "csv":
             thumb = img_root + "excelFile.png";
             break;
