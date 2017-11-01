@@ -395,17 +395,19 @@ function loadForm(destinationSelector, data, fid, repo, form_id) {
     typeof registerFormEvents === "function" ? registerFormEvents() : "";
     app.forms[form_id] = f;
 
-    $('.dropzone').each(function (index) {
+    $('.dropzone').each(function () {
         let upload_defaults = config.upload_defaults;
         let maxFiles = parseInt($(this).attr("maxFiles")) ? parseInt($(this).attr("maxFiles")) : upload_defaults.maxFiles;
         let maxFilesize = parseInt($(this).attr("maxFilesize")) ? parseInt($(this).attr("maxFilesize")) : upload_defaults.maxFilesize;
         let acceptedFiles = $(this).attr("acceptedFiles") ? $(this).attr("acceptedFiles") : upload_defaults.acceptedFiles;
         let dictDefaultMessage = $(this).attr("dictDefaultMessage") ? $(this).attr("dictDefaultMessage") : upload_defaults.dictDefaultMessage;
         let dictFileTooBig = $(this).attr("dictFileTooBig") ? $(this).attr("dictFileTooBig") : upload_defaults.dictFileTooBig;
-        let addRemoveLinks = $(this).attr("addRemoveLinks") == '' ? upload_defaults.addRemoveLinks : ($(this).attr("addRemoveLinks") == 'true');
+        let addRemoveLinks = $(this).attr("addRemoveLinks")? ($(this).attr("addRemoveLinks") == 'true'):upload_defaults.addRemoveLinks;
+        let addPublishLinks = $(this).attr("addPublishLinks")? ($(this).attr("addPublishLinks") == 'true'): upload_defaults.addPublishLinks;
+        let showTable = $(this).attr("showTable ") ? ($(this).attr("showTable") == 'true') : upload_defaults.showTable;
         let dictMaxFilesExceeded = $(this).attr("dictMaxFilesExceeded") ? $(this).attr("dictMaxFilesExceeded") : upload_defaults.dictMaxFilesExceeded;
-
-        let myDropzone = new Dropzone("div#" + $(this).attr("id"), {
+        let dz_id = $(this).attr("id");
+        let myDropzone = new Dropzone("div#" + dz_id, {
             "dz_id": $(this).attr("id") + "_dz", "fid": fid, "form_id": form_id,
             "url": config.httpHost.app[httpHost] + config.api.upload + config.upload_repo + '/' + config.upload_repo,
             "acceptedFiles": acceptedFiles,
@@ -413,10 +415,13 @@ function loadForm(destinationSelector, data, fid, repo, form_id) {
             "dictDefaultMessage": dictDefaultMessage,
             "maxFilesize": maxFilesize,
             "dictFileTooBig": dictFileTooBig,
+            "addPublishLinks": addPublishLinks,
             "addRemoveLinks": addRemoveLinks,
             "dictMaxFilesExceeded": dictMaxFilesExceeded
         });
-        dropzones[$(this).attr("id")] = myDropzone;
+        dropzones[dz_id] = myDropzone;
+
+        showUploads(myDropzone, dz_id, data, repo, addRemoveLinks , showTable, addPublishLinks);
     });
 
     let modifiedUsername = decodeURIComponent(getCookie(repo + '.cot_uname'));
@@ -436,10 +441,7 @@ function loadForm(destinationSelector, data, fid, repo, form_id) {
         //f.setData(data);
         mymodel.set(data);
         f.setModel(mymodel);
-        $('.dropzone').each(function () {
-
-            showUploads(dropzones[$(this).attr("id")], $(this).attr("id"), data, repo, true, true, true);
-        });
+        //$('.dropzone').each(function () {showUploads(dropzones[$(this).attr("id")], $(this).attr("id"), data, repo, addRemoveLinks , showTable, addPublishLinks);});
 
         $("#modifiedBy").val(modifiedUsername);
         if (!$("#modifiedEmail").val()) {
