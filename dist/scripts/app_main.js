@@ -1152,45 +1152,47 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
 
     let thisDZ = DZ;
     let _uploads = `<table width='100%' class="table-condensed table-responsive"><thead><tr><th>Name</th><th>Size</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
-    thisDZ.existingUploads = data[id];
-    //thisDZ.emit("addedFile", data[id]);
-    $.each(data[id], function (i, row) {
-        let getURL = config.httpHost.app[httpHost] + config.api.upload + repo + '/' + row.bin_id + '?sid=' + getCookie(config.default_repo + '.sid');
-        let getLink = `<button onclick="event.preventDefault();window.open('` + getURL + `')"><span title="Download/Open Attachment" class="glyphicon glyphicon-download"></span></button>`;
-        let deleteLink = '<button class="removeUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Delete Attachment" class="glyphicon glyphicon-trash"></span></button>';
-        let publishLink = '<button class="publishUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Publish Attachment" class="glyphicon glyphicon-cloud-upload"></span></button>';
-        let keepLink = '<button class="keepUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Keep Attachment" class="glyphicon glyphicon-ok"></span></button>';
-        let buttons = getLink;
-        let caption = row.name;
-        let status = row.status?row.status:"";
-        buttons += allowDelete ? deleteLink : '';
-        buttons += allowPublish && status !="publish" ? publishLink : '';
-        buttons += status ==="" || status ==="new" ? keepLink: '';
-        _uploads += '<tr id="' + row.bin_id + '"><td>' + row.name + '</td><td>' + row.size + '</td><td>' + status + '</td><td>'+ buttons + '</td></tr>'
+    if(data && data[id]) {
+        thisDZ.existingUploads = data[id];
+        //thisDZ.emit("addedFile", data[id]);
+        $.each(data[id], function (i, row) {
+            let getURL = config.httpHost.app[httpHost] + config.api.upload + repo + '/' + row.bin_id + '?sid=' + getCookie(config.default_repo + '.sid');
+            let getLink = `<button onclick="event.preventDefault();window.open('` + getURL + `')"><span title="Download/Open Attachment" class="glyphicon glyphicon-download"></span></button>`;
+            let deleteLink = '<button class="removeUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Delete Attachment" class="glyphicon glyphicon-trash"></span></button>';
+            let publishLink = '<button class="publishUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Publish Attachment" class="glyphicon glyphicon-cloud-upload"></span></button>';
+            let keepLink = '<button class="keepUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Keep Attachment" class="glyphicon glyphicon-ok"></span></button>';
+            let buttons = getLink;
+            let caption = row.name;
+            let status = row.status ? row.status : "";
+            buttons += allowDelete ? deleteLink : '';
+            buttons += allowPublish && status != "publish" ? publishLink : '';
+            buttons += status === "" || status === "new" ? keepLink : '';
+            _uploads += '<tr id="' + row.bin_id + '"><td>' + row.name + '</td><td>' + row.size + '</td><td>' + status + '</td><td>' + buttons + '</td></tr>'
 
-        //make the thumbnails clickable to view file
-        thisDZ.on("addedfile", function (file) {
-            file.getURL = getURL;
-            file.caption = caption;
-            if (row.bin_id == file.bin_id) {
-                file.previewElement.addEventListener("click", function () {
-                    window.open(file.getURL);
-                });
-            }
-            //file._captionLabel = Dropzone.createElement("<p>" + file.caption + "</p>")
-            //file.previewElement.appendChild(file._captionLabel);
+            //make the thumbnails clickable to view file
+            thisDZ.on("addedfile", function (file) {
+                file.getURL = getURL;
+                file.caption = caption;
+                if (row.bin_id == file.bin_id) {
+                    file.previewElement.addEventListener("click", function () {
+                        window.open(file.getURL);
+                    });
+                }
+                //file._captionLabel = Dropzone.createElement("<p>" + file.caption + "</p>")
+                //file.previewElement.appendChild(file._captionLabel);
+
+            });
+            thisDZ.emit("addedfile", row);
+            //add the thumbnail to the dropzone for all files already on the server
+            thisDZ.emit("thumbnail", row, getDefaultThumbnail(row.type));
+
+            //thisDZ.createThumbnailFromUrl(row, getURL);
+            //set the uploaded file to completed and set the max files for this dropzone.
+            thisDZ.emit("complete", row);
+            thisDZ.options.maxFiles = thisDZ.options.maxFiles - 1;
 
         });
-        thisDZ.emit("addedfile", row);
-        //add the thumbnail to the dropzone for all files already on the server
-        thisDZ.emit("thumbnail", row, getDefaultThumbnail(row.type));
-
-        //thisDZ.createThumbnailFromUrl(row, getURL);
-        //set the uploaded file to completed and set the max files for this dropzone.
-        thisDZ.emit("complete", row);
-        thisDZ.options.maxFiles = thisDZ.options.maxFiles - 1;
-
-    });
+    }
 
     _uploads += `</tbody></table>`;
     showTable ? $('#' + id + '_display').html(_uploads) : "";
