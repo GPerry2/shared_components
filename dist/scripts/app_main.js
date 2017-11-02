@@ -1154,7 +1154,6 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
     let _uploads = `<table width='100%' class="table-condensed table-responsive"><thead><tr><th>Name</th><th>Size</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
     if(data && data[id]) {
         thisDZ.existingUploads = data[id];
-        //thisDZ.emit("addedFile", data[id]);
         $.each(data[id], function (i, row) {
             let getURL = config.httpHost.app[httpHost] + config.api.upload + repo + '/' + row.bin_id + '?sid=' + getCookie(config.default_repo + '.sid');
             let getLink = `<button onclick="event.preventDefault();window.open('` + getURL + `')"><span title="Download/Open Attachment" class="glyphicon glyphicon-download"></span></button>`;
