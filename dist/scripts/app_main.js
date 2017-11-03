@@ -1154,7 +1154,7 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
     if(data && data[id]) {
         thisDZ.existingUploads = data[id];
         $.each(data[id], function (i, row) {
-            let getURL = config.httpHost.app[httpHost] + config.api.upload + repo + '/' + row.bin_id + '?sid=' + getCookie(config.default_repo + '.sid');
+            let getURL = config.httpHost.app[httpHost] + config.api.upload + config.upload_repo + '/' + row.bin_id + '?sid=' + getCookie(config.default_repo + '.sid');
             let getLink = `<button onclick="event.preventDefault();window.open('` + getURL + `')"><span title="Download/Open Attachment" class="glyphicon glyphicon-download"></span></button>`;
             let deleteLink = '<button class="removeUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Delete Attachment" class="glyphicon glyphicon-trash"></span></button>';
             let publishLink = '<button class="publishUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Publish Attachment" class="glyphicon glyphicon-cloud-upload"></span></button>';
@@ -1170,7 +1170,7 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
             //make the thumbnails clickable to view file
             thisDZ.on("addedfile", function (file) {
                 file.getURL = getURL;
-                file.dataURL = getURL;
+                file.dataURL = row.type.indexOf('image')>-1 ?getURL : getDefaultThumbnail(row.type);
                 file.caption = caption;
                 if (row.bin_id == file.bin_id) {
                     file.previewElement.addEventListener("click", function () {
@@ -1183,7 +1183,7 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
             });
             thisDZ.emit("addedfile", row);
             //add the thumbnail to the dropzone for all files already on the server
-            thisDZ.emit("thumbnail", row, getDefaultThumbnail(row.type));
+
             thisDZ.createThumbnailFromUrl(
                 row,
                 thisDZ.options.thumbnailWidth,
@@ -1195,6 +1195,7 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
                     thisDZ.emit("complete", row);
                 }, "anonymous"
             );
+            //thisDZ.emit("thumbnail", row, getDefaultThumbnail(row.type));
             //thisDZ.createThumbnailFromUrl(row, getURL);
             //set the uploaded file to completed and set the max files for this dropzone.
             thisDZ.emit("complete", row);
@@ -1234,7 +1235,7 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
     $("#maincontent").off("click", ".keepUpload").on("click", ".keepUpload",function () {
         event.preventDefault();
         let update = updateAttachmentStatus(thisDZ, $(this).attr('data-bin'), repo, 'keep', true);
-         if(update){}else{bootbox.alert("Upload Status update failed.");}
+        if(update){}else{bootbox.alert("Upload Status update failed.");}
     });
 }
 
