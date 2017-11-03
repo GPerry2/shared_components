@@ -35,8 +35,6 @@ $(document).ready(function () {
         cache: "true",
         success: function (data) {
             config = data;
-            tab = config.status.Draft;
-            //httpHost = '/* @echo ENV*/'
             app.setBreadcrumb(config.breadcrumbtrail);
             app.searchContext = "INTRA";
             app.render();
