@@ -1072,9 +1072,9 @@ class cc_retrieve_view {
  */
 function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
 
-    if(auth()) {
+    if(auth()) {  
         $("#maincontent :input").attr("disabled", true);
-        let updateURL = config.httpHost.app[httpHost] + config.api.upload_post + 'binUtils/' + config.default_repo + '/' + bin_id + '/' + status + '?sid=' + getCookie(config.default_repo + '.sid');
+        let updateURL = config.httpHost.app[httpHost] + config.api.upload_post + 'binUtils/' + config.upload_repo + '/' + bin_id + '/' + status + '?sid=' + getCookie(config.default_repo + '.sid');
         $.get(updateURL, function (data) {
             let form_id = DZ.options.form_id;
             if (status === 'delete') {
