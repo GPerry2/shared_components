@@ -1170,6 +1170,7 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
             //make the thumbnails clickable to view file
             thisDZ.on("addedfile", function (file) {
                 file.getURL = getURL;
+                file.dataURL = getURL;
                 file.caption = caption;
                 if (row.bin_id == file.bin_id) {
                     file.previewElement.addEventListener("click", function () {
@@ -1183,7 +1184,17 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
             thisDZ.emit("addedfile", row);
             //add the thumbnail to the dropzone for all files already on the server
             thisDZ.emit("thumbnail", row, getDefaultThumbnail(row.type));
-
+            thisDZ.createThumbnailFromUrl(
+                row,
+                thisDZ.options.thumbnailWidth,
+                thisDZ.options.thumbnailHeight,
+                thisDZ.options.thumbnailMethod,
+                true,
+                function(thumbnail) {
+                    thisDZ.emit('thumbnail', row, thumbnail);
+                    thisDZ.emit("complete", row);
+                }, "anonymous"
+            );
             //thisDZ.createThumbnailFromUrl(row, getURL);
             //set the uploaded file to completed and set the max files for this dropzone.
             thisDZ.emit("complete", row);
