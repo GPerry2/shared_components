@@ -416,7 +416,6 @@ function loadForm(destinationSelector, data, fid, repo, form_id) {
             "maxFilesize": maxFilesize,
             "dictFileTooBig": dictFileTooBig,
             "addPublishLinks": addPublishLinks,
-            "addRemoveLinks": addRemoveLinks,
             "dictMaxFilesExceeded": dictMaxFilesExceeded
         });
         dropzones[dz_id] = myDropzone;
@@ -1072,7 +1071,7 @@ class cc_retrieve_view {
  */
 function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
 
-    if(auth()) {  
+    if(auth()) {
         $("#maincontent :input").attr("disabled", true);
         let updateURL = config.httpHost.app[httpHost] + config.api.upload_post + 'binUtils/' + config.upload_repo + '/' + bin_id + '/' + status + '?sid=' + getCookie(config.default_repo + '.sid');
         $.get(updateURL, function (data) {
