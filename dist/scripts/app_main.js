@@ -761,7 +761,13 @@ class cc_retrieve_view {
             'bProcessing': true,
             'bServerSide': true,
             'dom': "<'row'<'col-sm-8 pull-left'i><'col-sm-4 pull-right'l>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'hidden'B><'col-sm-12 pull-right'p>>",
-            'buttons': ['pdfHtml5', 'csvHtml5', 'copyHtml5', 'excelHtml5'],
+            'buttons': [
+                {
+                    extend: 'pdfHtml5',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL'
+                }
+                , 'csvHtml5', 'copyHtml5', 'excelHtml5'],
             //'deferRender': false,
             'sAjaxSource': this.url,
             'fnServerData': this.fnServerOData,
