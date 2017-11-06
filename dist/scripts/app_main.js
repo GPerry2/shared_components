@@ -1085,6 +1085,7 @@ function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
                 DZ.existingUploads = $.grep(DZ.existingUploads, function (e) {
                     return e.bin_id != bin_id
                 });
+                $("#maincontent :input").attr("disabled", false);
                 processForm('updateAttachments', repo,form_id, hasher.getHashAsArray()[1]);
                 return true;
             }
@@ -1100,6 +1101,7 @@ function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
                 if(process & process===true){
                     processForm('updateAttachments', repo,form_id, hasher.getHashAsArray()[1]);
                 }
+                $("#maincontent :input").attr("disabled", false);
                 // bootbox.alert("Upload status successfully changed. Save this document to reflect the changes.");
                 return true;
 
@@ -1108,6 +1110,7 @@ function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
         }).fail(function () {
             $("#maincontent :input").attr("disabled", false);
             console.warn("Update Attachment Status Failed");
+            $("#maincontent :input").attr("disabled", false);
             return false;
         });
     }
