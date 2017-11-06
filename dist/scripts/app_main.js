@@ -1076,7 +1076,7 @@ class cc_retrieve_view {
 function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
 
     if(auth()) {
-        $("#maincontent :input").attr("disabled", true);
+        $("#maincontent :input, .dz-hidden-input").prop("disabled", true);
         let updateURL = config.httpHost.app[httpHost] + config.api.upload_post + 'binUtils/' + config.upload_repo + '/' + bin_id + '/' + status + '?sid=' + getCookie(config.default_repo + '.sid');
         $.get(updateURL, function (data) {
             let form_id = DZ.options.form_id;
@@ -1085,7 +1085,7 @@ function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
                 DZ.existingUploads = $.grep(DZ.existingUploads, function (e) {
                     return e.bin_id != bin_id
                 });
-                $("#maincontent :input").attr("disabled", false);
+                $("#maincontent :input, .dz-hidden-input").prop("disabled", false);
                 processForm('updateAttachments', repo,form_id, hasher.getHashAsArray()[1]);
                 return true;
             }
@@ -1101,19 +1101,18 @@ function updateAttachmentStatus(DZ, bin_id, repo, status, process) {
                 if(process & process===true){
                     processForm('updateAttachments', repo,form_id, hasher.getHashAsArray()[1]);
                 }
-                $("#maincontent :input").attr("disabled", false);
+                $("#maincontent :input, .dz-hidden-input").prop("disabled", false);
                 // bootbox.alert("Upload status successfully changed. Save this document to reflect the changes.");
                 return true;
 
             }
-            $("#maincontent :input").attr("disabled", false);
+            $("#maincontent :input, .dz-hidden-input").prop("disabled", false);
         }).fail(function () {
-            $("#maincontent :input").attr("disabled", false);
             console.warn("Update Attachment Status Failed");
-            $("#maincontent :input").attr("disabled", false);
+            $("#maincontent :input, .dz-hidden-input").prop("disabled", false);
             return false;
         });
-    }
+    } 
 }
 
 /**
@@ -1162,10 +1161,10 @@ function showUploads(DZ, id, data, repo, allowDelete, showTable, allowPublish) {
         thisDZ.existingUploads = data[id];
         $.each(data[id], function (i, row) {
             let getURL = config.httpHost.app[httpHost] + config.api.upload + config.upload_repo + '/' + row.bin_id + '?sid=' + getCookie(config.default_repo + '.sid');
-            let getLink = `<button onclick="event.preventDefault();window.open('` + getURL + `')"><span title="Download/Open Attachment" class="glyphicon glyphicon-download"></span></button>`;
-            let deleteLink = '<button class="removeUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Delete Attachment" class="glyphicon glyphicon-trash"></span></button>';
-            let publishLink = '<button class="publishUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Publish Attachment" class="glyphicon glyphicon-cloud-upload"></span></button>';
-            let keepLink = '<button class="keepUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Keep Attachment" class="glyphicon glyphicon-ok"></span></button>';
+            let getLink = `<button class="btn btn-primary" onclick="event.preventDefault();window.open('` + getURL + `')"><span title="Download/Open Attachment" class="glyphicon glyphicon-download"></span></button>`;
+            let deleteLink = '<button class="btn btn-warning removeUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Delete Attachment" class="glyphicon glyphicon-trash"></span></button>';
+            let publishLink = '<button class="btn btn-success publishUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Publish Attachment" class="glyphicon glyphicon-cloud-upload"></span></button>';
+            let keepLink = '<button class="btn btn-success keepUpload" data-id="' + i + '" data-bin="' + row.bin_id + '" ><span title="Keep Attachment" class="glyphicon glyphicon-ok"></span></button>';
             let buttons = getLink;
             let caption = row.name;
             let status = row.status ? row.status : "";
