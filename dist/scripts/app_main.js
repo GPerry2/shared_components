@@ -778,7 +778,7 @@ class cc_retrieve_view {
                     },
                     title: _this.formName + " Export (" + moment().format(config.dateTimeFormat) + ")"
                 },
-                'copyHtml5', 'excelHtml5'],
+                "copyHtml5", "excelHtml5"],
             "sAjaxSource": this.url,
             "fnServerData": this.fnServerOData,
             "createdRow": function (row, data) {
