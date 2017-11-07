@@ -766,8 +766,19 @@ class cc_retrieve_view {
                     extend: 'pdfHtml5',
                     orientation: 'landscape',
                     pageSize: 'LEGAL'
-                }
-                , 'csvHtml5', 'copyHtml5', 'excelHtml5'],
+                },
+                {
+                    extend: 'csv',
+                    text: 'csv',
+                    extension: '.csv',
+                    exportOptions: {
+                        modifier: {
+                            page: 'current'
+                        }
+                    },
+                    title: _this.formName + " Export (" + moment().format(config.dateTimeFormat) + ")"
+                },
+                'copyHtml5', 'excelHtml5'],
             "sAjaxSource": this.url,
             "fnServerData": this.fnServerOData,
             "createdRow": function (row, data) {
