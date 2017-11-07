@@ -754,26 +754,23 @@ class cc_retrieve_view {
         let dateFormat = this.dateFormat;
         this.target.empty().html(listHTML);
         this.dt = $("#" + unid).DataTable({
-            'formName': _this.formName,
-            'scrollX': _this.addScroll, // USED FOR HORIZONTAL SCROLL BAR
-            'bAutoWidth': _this.addScroll,
-            'order': this.getColumnSortOrder(),
-            'bProcessing': true,
-            'bServerSide': true,
-            'dom': "<'row'<'col-sm-8 pull-left'i><'col-sm-4 pull-right'l>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'hidden'B><'col-sm-12 pull-right'p>>",
-            'buttons': [
+            "formName": _this.formName,
+            "scrollX": _this.addScroll, // USED FOR HORIZONTAL SCROLL BAR
+            "bAutoWidth": _this.addScroll,
+            "order": this.getColumnSortOrder(),
+            "bProcessing": true,
+            "bServerSide": true,
+            "dom": "<'row'<'col-sm-8 pull-left'i><'col-sm-4 pull-right'l>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'hidden'B><'col-sm-12 pull-right'p>>",
+            "buttons": [
                 {
                     extend: 'pdfHtml5',
                     orientation: 'landscape',
                     pageSize: 'LEGAL'
                 }
                 , 'csvHtml5', 'copyHtml5', 'excelHtml5'],
-            //'deferRender': false,
-            'sAjaxSource': this.url,
-            'fnServerData': this.fnServerOData,
-            //'iODataVersion': 4,
-            //'bUseODataViaJSONP': false,
-            'createdRow': function (row, data) {
+            "sAjaxSource": this.url,
+            "fnServerData": this.fnServerOData,
+            "createdRow": function (row, data) {
                 let doc_id = data.id ? data.id : data['@odata.id'].substring((data['@odata.id'].indexOf("('") + 2), (data['@odata.id'].indexOf("')")));
                 $(row).attr('id', doc_id);
                 $(row).attr('data-id', doc_id);
@@ -781,7 +778,8 @@ class cc_retrieve_view {
             },
             "columnDefs": this.columnDefs,
             "select": true,
-            'initComplete': function () {
+            "lengthMenu": [ [10, 50, 100, 1000], [10, 50, 100, 1000] ],
+            "initComplete": function () {
                 //Add filtering Table if requested
                 this.api().columns().every(function () {
                     let column = this;
