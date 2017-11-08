@@ -274,7 +274,7 @@ function openView(status, filter, repo, target, formName) {
     let args = {
         "url": config.httpHost.app[httpHost] + config.api.get + repo + '/' + view,
         "target": $("#" + target),
-        "formName": formName,
+        "formName": view,
         "columnDefs": columnDefs,
         "addScroll": true,
         "addFilter": true,
