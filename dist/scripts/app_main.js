@@ -601,7 +601,7 @@ function processForm(action, repo, form_id, fid, registerOnSaveEvents) {
         $('.dropzone').each(function (index) {
             f_data[$(this).attr("id")] = processUploads(dropzones[$(this).attr("id")], repo, true);
         });
-        typeof registerOnSaveEvents === "function" ? registerOnSaveEvents() : "";
+        typeof registerOnSaveEvents === "function" ? registerOnSaveEvents(f_data) : "";
 
         updateReport(fid, action, JSON.stringify(f_data), msg, repo, form_id);
     }else {
@@ -611,7 +611,8 @@ function processForm(action, repo, form_id, fid, registerOnSaveEvents) {
             f_data[$(this).attr("id")] = processUploads(dropzones[$(this).attr("id")], repo, true);
         });
 
-
+        typeof registerOnSaveEvents === "function" ? registerOnSaveEvents(f_data) : "";
+        
         if (fid) {
             updateReport(fid, action, JSON.stringify(f_data), msg, repo, form_id);
         }
