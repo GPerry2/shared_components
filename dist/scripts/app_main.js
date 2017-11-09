@@ -374,7 +374,7 @@ function loadForm(destinationSelector, data, fid, repo, form_id) {
 
     $(destinationSelector).empty();
 
-    [sections, mymodel, registerFormEvents]= getSubmissionSections(form_id, data);
+    [sections, mymodel, registerFormEvents, registerOnSaveEvents]= getSubmissionSections(form_id, data);
 
     let f = new CotForm({
         "id": form_id,
@@ -384,8 +384,7 @@ function loadForm(destinationSelector, data, fid, repo, form_id) {
         "sections": sections,
         "model":mymodel,
         success: function () {
-            processForm("save", repo, form_id, fid);
-
+            processForm("save", repo, form_id, fid,registerOnSaveEvents);
         }
     });
     f.render({"target": destinationSelector});
@@ -585,7 +584,7 @@ function deleteReport(fid, collectionName, after) {
  * @param form_id {string} -  the entity set/collection name
  * @param fid {string} - guid of the entity
  */
-function processForm(action, repo, form_id, fid) {
+function processForm(action, repo, form_id, fid, registerOnSaveEvents) {
 
     let msg = {
         'done': 'save.done',
@@ -602,6 +601,8 @@ function processForm(action, repo, form_id, fid) {
         $('.dropzone').each(function (index) {
             f_data[$(this).attr("id")] = processUploads(dropzones[$(this).attr("id")], repo, true);
         });
+        typeof registerOnSaveEvents === "function" ? registerOnSaveEvents() : "";
+        
         updateReport(fid, action, JSON.stringify(f_data), msg, repo, form_id);
     }else {
         f_data = app.forms[form_id]._model.toJSON();
