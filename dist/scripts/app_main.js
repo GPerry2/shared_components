@@ -602,7 +602,7 @@ function processForm(action, repo, form_id, fid, registerOnSaveEvents) {
             f_data[$(this).attr("id")] = processUploads(dropzones[$(this).attr("id")], repo, true);
         });
         typeof registerOnSaveEvents === "function" ? registerOnSaveEvents() : "";
-        
+
         updateReport(fid, action, JSON.stringify(f_data), msg, repo, form_id);
     }else {
         f_data = app.forms[form_id]._model.toJSON();
