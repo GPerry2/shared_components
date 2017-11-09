@@ -1297,6 +1297,36 @@ function getDefaultThumbnail(stringType) {
 
 /**
  *
+ */
+class cc_status_bar{
+    constructor(args){
+        this.progress_dialog = null;
+        this.current_progress = 0;
+    }
+
+    showStatusBar(title){
+        this.progress_dialog = bootbox.dialog({
+            title: title + '<div id="dynamic-title"></div>',
+            message: '<div class="progress"><div id="dynamic" class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"><span id="current-progress"></span></div></div>'
+        });
+    }
+
+    updateStatusBar(current, total){
+        this.current_progress = (current/total*100)
+        if(current === total){bootbox.hideAll()}
+        else{
+            this.progress_dialog.find('.bootbox-body #dynamic')
+                .css("width", this.current_progress.toFixed(0) + "%")
+                .attr("aria-valuenow", this.current_progress.toFixed(0))
+                .text(this.current_progress.toFixed(0) + "% Complete");
+
+            this.progress_dialog.find('.modal-title #dynamic-title').html(current + ' of ' + total)
+        }
+    }
+}
+
+/**
+ *
  * @param li_class
  * @param li_id
  * @param icon_class
